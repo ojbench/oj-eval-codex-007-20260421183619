@@ -15,7 +15,9 @@ using std::string;
 
 Program::Program() = default;
 
-Program::~Program() = default;
+Program::~Program() {
+    clear();
+}
 
 void Program::clear() {
     // free any parsed statements
@@ -127,4 +129,3 @@ void Program::resetRuntime() {
     jumpLine = -1;
     stopFlag = false;
 }
-

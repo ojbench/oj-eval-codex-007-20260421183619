@@ -17,6 +17,7 @@
 
 /* Function prototypes */
 
+static bool g_quit = false;
 void processLine(std::string line, Program &program, EvalState &state);
 
 /* Main program */
@@ -25,7 +26,7 @@ int main() {
     EvalState state;
     Program program;
     //cout << "Stub implementation of BASIC" << endl;
-    while (true) {
+    while (!g_quit) {
         try {
             std::string input;
             getline(std::cin, input);
@@ -50,6 +51,8 @@ int main() {
  * when the user enters a program line (which begins with a number)
  * or one of the BASIC commands, such as LIST or RUN.
  */
+
+// global quit flag defined above main
 
 void processLine(std::string line, Program &program, EvalState &state) {
     TokenScanner scanner;
@@ -145,7 +148,8 @@ void processLine(std::string line, Program &program, EvalState &state) {
         state.Clear();
         return;
     } else if (cmd == "QUIT") {
-        exit(0);
+        g_quit = true;
+        return;
     } else if (cmd == "RUN") {
         // Execute program from first line following control flow
         program.resetRuntime();
