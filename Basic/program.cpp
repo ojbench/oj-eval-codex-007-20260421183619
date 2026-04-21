@@ -9,6 +9,7 @@
  */
 
 #include "program.hpp"
+using std::string;
 
 
 
@@ -17,48 +18,113 @@ Program::Program() = default;
 Program::~Program() = default;
 
 void Program::clear() {
-    // Replace this stub with your own code
-    //todo
+    // free any parsed statements
+    for (auto &kv : statements) {
+        delete kv.second;
+    }
+    statements.clear();
+    sourceLines.clear();
+    order.clear();
+    jumpLine = -1;
+    stopFlag = false;
 }
 
 void Program::addSourceLine(int lineNumber, const std::string &line) {
-    // Replace this stub with your own code
-    //todo
+    // Replace or add source line; delete any previous parsed statement
+    auto it = sourceLines.find(lineNumber);
+    if (it != sourceLines.end()) {
+        // replacing existing
+        auto sit = statements.find(lineNumber);
+        if (sit != statements.end()) {
+            delete sit->second;
+            statements.erase(sit);
+        }
+        it->second = line;
+    } else {
+        sourceLines.emplace(lineNumber, line);
+        order.insert(lineNumber);
+    }
 }
 
 void Program::removeSourceLine(int lineNumber) {
-    // Replace this stub with your own code
-    //todo
+    auto it = sourceLines.find(lineNumber);
+    if (it != sourceLines.end()) {
+        sourceLines.erase(it);
+        order.erase(lineNumber);
+        auto sit = statements.find(lineNumber);
+        if (sit != statements.end()) {
+            delete sit->second;
+            statements.erase(sit);
+        }
+    }
 }
 
 std::string Program::getSourceLine(int lineNumber) {
-    // Replace this stub with your own code
-    //todo
+    auto it = sourceLines.find(lineNumber);
+    if (it == sourceLines.end()) return "";
+    return it->second;
 }
 
 void Program::setParsedStatement(int lineNumber, Statement *stmt) {
-    // Replace this stub with your own code
-    //todo
+    auto it = sourceLines.find(lineNumber);
+    if (it == sourceLines.end()) {
+        error("LINE NUMBER ERROR");
+    }
+    auto sit = statements.find(lineNumber);
+    if (sit != statements.end()) {
+        delete sit->second;
+        sit->second = stmt;
+    } else {
+        statements.emplace(lineNumber, stmt);
+    }
 }
 
 //void Program::removeSourceLine(int lineNumber) {
 
 Statement *Program::getParsedStatement(int lineNumber) {
-   // Replace this stub with your own code
-   //todo
+   auto it = statements.find(lineNumber);
+   if (it == statements.end()) return nullptr;
+   return it->second;
 }
 
 int Program::getFirstLineNumber() {
-    // Replace this stub with your own code
-    //todo
+    if (order.empty()) return -1;
+    return *order.begin();
 }
 
 int Program::getNextLineNumber(int lineNumber) {
-    // Replace this stub with your own code
-    //todo
+    auto it = order.upper_bound(lineNumber);
+    if (it == order.end()) return -1;
+    return *it;
 }
 
 //more func to add
 //todo
 
+void Program::jumpTo(int lineNumber) {
+    jumpLine = lineNumber;
+}
+
+bool Program::hasJump() const {
+    return jumpLine != -1;
+}
+
+int Program::consumeJump() {
+    int v = jumpLine;
+    jumpLine = -1;
+    return v;
+}
+
+void Program::stop() {
+    stopFlag = true;
+}
+
+bool Program::isStopped() const {
+    return stopFlag;
+}
+
+void Program::resetRuntime() {
+    jumpLine = -1;
+    stopFlag = false;
+}
 

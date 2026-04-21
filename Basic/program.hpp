@@ -142,11 +142,24 @@ public:
 
     //more func to add
     //todo
+    // Runtime control helpers for GOTO/IF/END
+    void jumpTo(int lineNumber);
+    bool hasJump() const;
+    int consumeJump();
+    void stop();
+    bool isStopped() const;
+    void resetRuntime();
 
 private:
-
-    // Fill this in with whatever types and instance variables you need
-    //todo
+    // Map line number -> source text (original line)
+    std::unordered_map<int, std::string> sourceLines;
+    // Map line number -> parsed statement pointer
+    std::unordered_map<int, Statement*> statements;
+    // Ordered set of existing line numbers for traversal
+    std::set<int> order;
+    // runtime control
+    int jumpLine{-1};
+    bool stopFlag{false};
 };
 
 #endif
